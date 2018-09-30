@@ -5,7 +5,7 @@
     android:id="@+id/constraint_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".SigInActivity">
+    tools:context=".SignInActivity">
 
     <ImageView
         android:id="@+id/imageView"
@@ -29,7 +29,7 @@
         android:layout_marginBottom="8dp"
         android:layout_marginTop="8dp"
         android:backgroundTint="?attr/colorPrimary"
-        android:text="Continue &amp; Sign In"
+        android:text="SIGN IN"
         android:textColor="@android:color/white"
         app:layout_behavior="com.resocoder.productivity.weeksweep.behaviors.ShrinkBehavior"
         app:layout_constraintBottom_toBottomOf="parent"

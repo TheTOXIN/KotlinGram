@@ -6,6 +6,8 @@ apply plugin: 'kotlin-android-extensions'
 
 apply plugin: 'com.google.gms.google-services'
 
+apply plugin: 'kotlin-kapt' //kotlin annotation processor
+
 android {
     compileSdkVersion 27
     defaultConfig {
@@ -50,6 +52,9 @@ dependencies {
     implementation 'com.firebaseui:firebase-ui-storage:3.3.1'
     implementation 'com.google.android.gms:play-services-auth:16.0.0'
     implementation 'com.google.firebase:firebase-messaging:17.3.2'
+    //glide
+    implementation 'com.github.bumptech.glide:glide:4.6.1'
+    kapt 'com.github.bumptech.glide:compiler:4.6.1'
 
     kotlin {
         experimental {

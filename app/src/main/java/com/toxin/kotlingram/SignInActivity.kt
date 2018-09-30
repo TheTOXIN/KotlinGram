@@ -7,6 +7,7 @@ import android.os.Bundle
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.ErrorCodes
 import com.firebase.ui.auth.IdpResponse
+import com.toxin.kotlingram.util.FirestoreUtil
 import kotlinx.android.synthetic.main.activity_sig_in.*
 import org.jetbrains.anko.clearTask
 import org.jetbrains.anko.design.longSnackbar
@@ -14,7 +15,7 @@ import org.jetbrains.anko.indeterminateProgressDialog
 import org.jetbrains.anko.intentFor
 import org.jetbrains.anko.newTask
 
-class SigInActivity : AppCompatActivity() {
+class SignInActivity : AppCompatActivity() {
 
     private val RC_SIGN_IN = 1
 
@@ -46,9 +47,10 @@ class SigInActivity : AppCompatActivity() {
 
             if (resultCode == Activity.RESULT_OK) {
                 val progressDialog = indeterminateProgressDialog("Setting up your account")
-                //TODO init user in firebase
-                startActivity(intentFor<MainActivity>().newTask().clearTask())
-                progressDialog.dismiss()
+                FirestoreUtil.intiCurrentIfFirstTime {
+                    startActivity(intentFor<MainActivity>().newTask().clearTask())
+                    progressDialog.dismiss()
+                }
             } else if (resultCode == Activity.RESULT_CANCELED) {
                 if (response == null) return
 
