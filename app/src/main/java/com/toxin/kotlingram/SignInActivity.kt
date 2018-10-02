@@ -7,6 +7,8 @@ import android.os.Bundle
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.ErrorCodes
 import com.firebase.ui.auth.IdpResponse
+import com.google.firebase.iid.FirebaseInstanceId
+import com.toxin.kotlingram.service.MyFirebaseInstantIdService
 import com.toxin.kotlingram.util.FirestoreUtil
 import kotlinx.android.synthetic.main.activity_sig_in.*
 import org.jetbrains.anko.clearTask
@@ -49,6 +51,10 @@ class SignInActivity : AppCompatActivity() {
                 val progressDialog = indeterminateProgressDialog("Setting up your account")
                 FirestoreUtil.initCurrentIfFirstTime {
                     startActivity(intentFor<MainActivity>().newTask().clearTask())
+
+                    val registrationToken = FirebaseInstanceId.getInstance().token
+                    MyFirebaseInstantIdService.addTokenToFirestore(registrationToken)
+
                     progressDialog.dismiss()
                 }
             } else if (resultCode == Activity.RESULT_CANCELED) {
