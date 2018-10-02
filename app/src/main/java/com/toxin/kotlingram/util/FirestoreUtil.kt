@@ -1,9 +1,14 @@
 package com.toxin.kotlingram.util
 
+import android.content.Context
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import com.toxin.kotlingram.model.User
+import com.toxin.kotlingram.recyclerview.item.PersonItem
+import com.xwray.groupie.kotlinandroidextensions.Item
 
 object FirestoreUtil {
 
@@ -12,10 +17,10 @@ object FirestoreUtil {
     }
 
     private val currentUserDocRef: DocumentReference
-        get() = firestoreInstance.document("user/${FirebaseAuth.getInstance().uid
+        get() = firestoreInstance.document("user/${FirebaseAuth.getInstance().currentUser?.uid
                 ?: throw NullPointerException("UUID is NULL")}")
 
-    fun intiCurrentIfFirstTime(onComplete: () -> Unit) {
+    fun initCurrentIfFirstTime(onComplete: () -> Unit) {
         currentUserDocRef.get().addOnSuccessListener { documentSnapshot ->
             if (!documentSnapshot.exists()) {
                 val newUser = User(
@@ -47,5 +52,24 @@ object FirestoreUtil {
                     onComplete(it.toObject(User::class.java))
                 }
     }
+
+    fun addUsersListener(context: Context, onListen: (List<Item>) -> Unit): ListenerRegistration {
+        return firestoreInstance.collection("users")
+                .addSnapshotListener { querySnapshot, firebaseFirestoreException ->
+                    if (firebaseFirestoreException != null) {
+                        Log.e("FIRESTORE", "Users listener error.", firebaseFirestoreException)
+                        return@addSnapshotListener
+                    }
+
+                    val items = mutableListOf<Item>()
+                    querySnapshot!!.documents.forEach {
+                        if (it.id != FirebaseAuth.getInstance().currentUser?.uid)
+                            items.add(PersonItem(it.toObject(User::class.java)!!, it.id, context))
+                    }
+                    onListen(items)
+                }
+    }
+
+    fun removeListener(registration: ListenerRegistration) = registration.remove()
 
 }

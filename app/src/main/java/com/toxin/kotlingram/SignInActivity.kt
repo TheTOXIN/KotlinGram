@@ -47,7 +47,7 @@ class SignInActivity : AppCompatActivity() {
 
             if (resultCode == Activity.RESULT_OK) {
                 val progressDialog = indeterminateProgressDialog("Setting up your account")
-                FirestoreUtil.intiCurrentIfFirstTime {
+                FirestoreUtil.initCurrentIfFirstTime {
                     startActivity(intentFor<MainActivity>().newTask().clearTask())
                     progressDialog.dismiss()
                 }

@@ -22,7 +22,7 @@
             android:label="@string/app_name" />
         <activity
             android:name=".SignInActivity"
-            android:label="Start KotlinGram"/>
+            android:label="KotlinGram"/>
     </application>
 
 </manifest>

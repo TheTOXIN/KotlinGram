@@ -22,6 +22,7 @@ import kotlinx.android.synthetic.main.fragment_my_account.view.*
 import org.jetbrains.anko.clearTask
 import org.jetbrains.anko.newTask
 import org.jetbrains.anko.support.v4.intentFor
+import org.jetbrains.anko.support.v4.toast
 import java.io.ByteArrayOutputStream
 
 class MyAccountFragment : Fragment() {
@@ -62,6 +63,7 @@ class MyAccountFragment : Fragment() {
                             editText_bio.text.toString(),
                             null
                     )
+                toast("SAVING")
             }
 
             btn_sign_out.setOnClickListener {
