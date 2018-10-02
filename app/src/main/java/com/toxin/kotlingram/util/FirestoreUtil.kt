@@ -7,6 +7,8 @@ import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.toxin.kotlingram.model.*
+import com.toxin.kotlingram.recyclerview.item.ImageMessageItem
+import com.toxin.kotlingram.recyclerview.item.MessageItem
 import com.toxin.kotlingram.recyclerview.item.PersonItem
 import com.toxin.kotlingram.recyclerview.item.TextMessageItem
 
@@ -107,7 +109,7 @@ object FirestoreUtil {
     fun addChatMessagesListener(
             channelId: String,
             context: Context,
-            onListen: (List<TextMessageItem>) -> Unit
+            onListen: (List<MessageItem>) -> Unit
     ): ListenerRegistration {
         return chatChannelCollectionRef.document(channelId).collection("messages")
                 .orderBy("time")
@@ -117,10 +119,13 @@ object FirestoreUtil {
                         return@addSnapshotListener
                     }
 
-                    val items = mutableListOf<TextMessageItem>()
+                    val items = mutableListOf<MessageItem>()
                     querySnapshot!!.documents.forEach {
                         if (it["type"] == MessageType.TEXT)
                             items.add(TextMessageItem(it.toObject(TextMessage::class.java)!!, context))
+                        else
+                            items.add(ImageMessageItem(it.toObject(ImageMessage::class.java)!!, context))
+                        return@forEach
                     }
                     onListen(items)
                 }
