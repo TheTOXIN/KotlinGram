@@ -9,10 +9,10 @@ import android.view.View
 import android.view.ViewGroup
 import com.google.firebase.firestore.ListenerRegistration
 import com.toxin.kotlingram.R
+import com.toxin.kotlingram.recyclerview.item.PersonItem
 import com.toxin.kotlingram.util.FirestoreUtil
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.Section
-import com.xwray.groupie.kotlinandroidextensions.Item
 import com.xwray.groupie.kotlinandroidextensions.ViewHolder
 import kotlinx.android.synthetic.main.fragment_people.*
 
@@ -41,7 +41,7 @@ class PeopleFragment : Fragment() {
         shouldInitRecyclerView = true
     }
 
-    private fun updateRecyclerView(items: List<Item>) {
+    private fun updateRecyclerView(items: List<PersonItem>) {
         fun init() {
             recycler_view_people.apply {
                 layoutManager = LinearLayoutManager(this@PeopleFragment.context)

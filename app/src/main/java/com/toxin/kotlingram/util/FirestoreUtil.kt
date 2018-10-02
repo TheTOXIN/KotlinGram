@@ -8,7 +8,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.toxin.kotlingram.model.User
 import com.toxin.kotlingram.recyclerview.item.PersonItem
-import com.xwray.groupie.kotlinandroidextensions.Item
 
 object FirestoreUtil {
 
@@ -17,7 +16,7 @@ object FirestoreUtil {
     }
 
     private val currentUserDocRef: DocumentReference
-        get() = firestoreInstance.document("user/${FirebaseAuth.getInstance().currentUser?.uid
+        get() = firestoreInstance.document("users/${FirebaseAuth.getInstance().currentUser?.uid
                 ?: throw NullPointerException("UUID is NULL")}")
 
     fun initCurrentIfFirstTime(onComplete: () -> Unit) {
@@ -53,7 +52,7 @@ object FirestoreUtil {
                 }
     }
 
-    fun addUsersListener(context: Context, onListen: (List<Item>) -> Unit): ListenerRegistration {
+    fun addUsersListener(context: Context, onListen: (List<PersonItem>) -> Unit): ListenerRegistration {
         return firestoreInstance.collection("users")
                 .addSnapshotListener { querySnapshot, firebaseFirestoreException ->
                     if (firebaseFirestoreException != null) {
@@ -61,7 +60,7 @@ object FirestoreUtil {
                         return@addSnapshotListener
                     }
 
-                    val items = mutableListOf<Item>()
+                    val items = mutableListOf<PersonItem>()
                     querySnapshot!!.documents.forEach {
                         if (it.id != FirebaseAuth.getInstance().currentUser?.uid)
                             items.add(PersonItem(it.toObject(User::class.java)!!, it.id, context))
