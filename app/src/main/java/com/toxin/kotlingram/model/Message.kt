@@ -11,4 +11,5 @@ interface Message {
     val time: Date
     val senderId: String
     val type: String
+    val read: Boolean
 }

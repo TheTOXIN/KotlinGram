@@ -123,10 +123,14 @@ object FirestoreUtil {
 
                     val items = mutableListOf<MessageItem>()
                     querySnapshot!!.documents.forEach {
+                        if(it["senderId"] != FirebaseAuth.getInstance().currentUser?.uid)
+                            readMessage(it.id, channelId)
+
                         if (it["type"] == MessageType.TEXT)
                             items.add(TextMessageItem(it.toObject(TextMessage::class.java)!!, context))
                         else
                             items.add(ImageMessageItem(it.toObject(ImageMessage::class.java)!!, context))
+
                         return@forEach
                     }
                     onListen(items)
@@ -137,6 +141,13 @@ object FirestoreUtil {
         chatChannelCollectionRef.document(channelId)
                 .collection("messages")
                 .add(message)
+    }
+
+    fun readMessage(messageId: String, channelId: String) {
+        chatChannelCollectionRef.document(channelId)
+                .collection("messages")
+                .document(messageId)
+                .update("read", true)
     }
 
     //region FCM
