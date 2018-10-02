@@ -6,10 +6,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
-import com.toxin.kotlingram.model.ChatChannel
-import com.toxin.kotlingram.model.MessageType
-import com.toxin.kotlingram.model.TextMessage
-import com.toxin.kotlingram.model.User
+import com.toxin.kotlingram.model.*
 import com.toxin.kotlingram.recyclerview.item.PersonItem
 import com.toxin.kotlingram.recyclerview.item.TextMessageItem
 
@@ -23,7 +20,7 @@ object FirestoreUtil {
         get() = firestoreInstance.document("users/${FirebaseAuth.getInstance().currentUser?.uid
                 ?: throw NullPointerException("UUID is NULL")}")
 
-    private val chatChanelCollectionRef = firestoreInstance.collection("chatChannels")
+    private val chatChannelCollectionRef = firestoreInstance.collection("chatChannels")
 
     fun initCurrentIfFirstTime(onComplete: () -> Unit) {
         currentUserDocRef.get().addOnSuccessListener { documentSnapshot ->
@@ -77,7 +74,7 @@ object FirestoreUtil {
 
     fun removeListener(registration: ListenerRegistration) = registration.remove()
 
-    fun getOrCreatChatChannel(
+    fun getOrCreateChatChannel(
             otherUserId: String,
             onComplete: (channelId: String) -> Unit
     ) {
@@ -90,7 +87,7 @@ object FirestoreUtil {
 
                     val currentUserId = FirebaseAuth.getInstance().currentUser!!.uid
 
-                    val newChannel = chatChanelCollectionRef.document()
+                    val newChannel = chatChannelCollectionRef.document()
                     newChannel.set(ChatChannel(mutableListOf(currentUserId, otherUserId)))
 
                     currentUserDocRef
@@ -107,29 +104,32 @@ object FirestoreUtil {
                 }
     }
 
-    fun addChatMessageListener(
+    fun addChatMessagesListener(
             channelId: String,
             context: Context,
             onListen: (List<TextMessageItem>) -> Unit
-    ) : ListenerRegistration {
-        return chatChanelCollectionRef.document(channelId).collection("message")
+    ): ListenerRegistration {
+        return chatChannelCollectionRef.document(channelId).collection("messages")
                 .orderBy("time")
-                .addSnapshotListener { querySnapshot, firestoreException ->
-                    if (firestoreException != null) {
-                        Log.e("FIRESTORE", "Chat message listener error.", firestoreException)
+                .addSnapshotListener { querySnapshot, firebaseFirestoreException ->
+                    if (firebaseFirestoreException != null) {
+                        Log.e("FIRESTORE", "ChatMessagesListener error.", firebaseFirestoreException)
                         return@addSnapshotListener
                     }
 
                     val items = mutableListOf<TextMessageItem>()
                     querySnapshot!!.documents.forEach {
-                        if (it["item"] == MessageType.TEXT)
+                        if (it["type"] == MessageType.TEXT)
                             items.add(TextMessageItem(it.toObject(TextMessage::class.java)!!, context))
-                        //else
-                            //TODO IMAGE
                     }
-
                     onListen(items)
                 }
+    }
+
+    fun sendMessage(message: Message, channelId: String) {
+        chatChannelCollectionRef.document(channelId)
+                .collection("messages")
+                .add(message)
     }
 
 }
