@@ -2,6 +2,7 @@ package com.toxin.kotlingram.recyclerview.item
 
 import android.content.Context
 import android.graphics.Color
+import com.google.firebase.auth.FirebaseAuth
 import com.toxin.kotlingram.R
 import com.toxin.kotlingram.glide.GlideApp
 import com.toxin.kotlingram.model.User
@@ -14,16 +15,17 @@ import kotlinx.android.synthetic.main.item_person.*
 class PersonItem(
         val person: User,
         val userId: String,
-        val notRead: Int,
         private val context: Context
 ) : Item() {
 
     override fun bind(viewHolder: ViewHolder, position: Int) {
         viewHolder.textView_name.text = person.name
         viewHolder.textView_bio.text = person.bio
-        viewHolder.textView_read.text = notRead.toString()
 
-        if (notRead == 0)
+        val countNotRead = person.counter.getOrDefault(FirebaseAuth.getInstance().currentUser?.uid!!, 0)
+        viewHolder.textView_read.text = countNotRead.toString()
+
+        if (countNotRead == 0)
             viewHolder.textView_read_img.setColorFilter(Color.argb(255, 96, 96, 96))
 
         if (person.profilePicturePath != null)

@@ -70,43 +70,16 @@ object FirestoreUtil {
 
                     val items = mutableListOf<PersonItem>()
                     querySnapshot!!.documents.forEach {
-                        getNonReadCount(it.id) { count ->
-                            if (it.id != FirebaseAuth.getInstance().currentUser?.uid)
-                                items.add(PersonItem(
-                                        it.toObject(User::class.java)!!,
-                                        it.id,
-                                        count,
-                                        context
-                                ))
-                            onListen(items)
+                        if (it.id != FirebaseAuth.getInstance().currentUser?.uid) {
+                            items.add(PersonItem(
+                                    it.toObject(User::class.java)!!,
+                                    it.id,
+                                    context
+                            ))
                         }
+                        onListen(items)
                     }
                 }
-    }
-
-    private fun getNonReadCount(
-            userId: String,
-            onComplete: (count: Int) -> Unit
-    ) {
-        getOrCreateChatChannel(userId) { channelId ->
-            chatChannelCollectionRef
-                    .document(channelId)
-                    .collection("messages")
-                    .addSnapshotListener { querySnapshot, firebaseFirestoreException ->
-                        if (firebaseFirestoreException != null) {
-                            Log.e("FIRESTORE", "Count not read error.", firebaseFirestoreException)
-                            return@addSnapshotListener
-                        }
-
-                        var count = 0
-                        querySnapshot!!.documents.forEach {
-                            if (it["read"] == false && it["senderId"] != FirebaseAuth.getInstance().currentUser?.uid)
-                                count++
-                        }
-
-                        onComplete(count)
-                    }
-        }
     }
 
     fun removeListener(registration: ListenerRegistration) = registration.remove()
@@ -174,6 +147,7 @@ object FirestoreUtil {
         chatChannelCollectionRef.document(channelId)
                 .collection("messages")
                 .add(message)
+        updateCounterRead(message.senderId, channelId, false)
     }
 
     fun readMessage(messageId: String, channelId: String) {
@@ -181,6 +155,38 @@ object FirestoreUtil {
                 .collection("messages")
                 .document(messageId)
                 .update("read", true)
+
+        chatChannelCollectionRef.document(channelId)
+                .collection("messages")
+                .document(messageId)
+                .get()
+                .addOnSuccessListener {
+                    updateCounterRead(it["senderId"].toString(), channelId, true)
+                }
+    }
+
+    private fun updateCounterRead(
+            senderId: String,
+            channelId: String,
+            clear: Boolean
+    ) {
+        chatChannelCollectionRef
+                .document(channelId).get().addOnSuccessListener {
+                    val channel = it.toObject(ChatChannel::class.java)!!
+                    channel.userIds.forEach {
+                        val reciverId = it
+                        if (reciverId != senderId) {
+                            firestoreInstance.document("users/${senderId}").get().addOnSuccessListener {
+                                val user = it.toObject(User::class.java)!!
+                                val counter = user.counter
+                                val count = counter.getOrDefault(reciverId, 0)
+                                if (clear) counter.put(reciverId, 0)
+                                else counter.put(reciverId, count + 1)
+                                firestoreInstance.document("users/${senderId}").update("counter", counter)
+                            }
+                        }
+                    }
+                }
     }
 
     //region FCM

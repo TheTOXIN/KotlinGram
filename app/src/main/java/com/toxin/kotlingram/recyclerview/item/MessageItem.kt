@@ -1,5 +1,6 @@
 package com.toxin.kotlingram.recyclerview.item
 
+import android.graphics.Color
 import android.view.Gravity
 import android.widget.FrameLayout
 import com.google.firebase.auth.FirebaseAuth
@@ -28,6 +29,11 @@ abstract class MessageItem(
     }
 
     private fun setMessageRootGravity(viewHolder: ViewHolder) {
+        if (message.read)
+            viewHolder.message_item_root.setBackgroundColor(
+                    Color.argb(255, 255, 255, 255)
+            )
+
         if (message.senderId == FirebaseAuth.getInstance().currentUser?.uid) {
             viewHolder.message_root.apply {
                 backgroundResource = R.drawable.rect_round_primary_color

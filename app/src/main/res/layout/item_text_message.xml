@@ -7,7 +7,9 @@
     android:layout_marginTop="8dp"
     android:layout_marginBottom="8dp"
     android:layout_marginEnd="8dp"
-    android:layout_marginStart="8dp">
+    android:layout_marginStart="8dp"
+    android:id="@+id/message_item_root"
+    android:background="@color/colorLightGray">
     <RelativeLayout
         android:id="@+id/message_root"
         android:layout_width="wrap_content"
