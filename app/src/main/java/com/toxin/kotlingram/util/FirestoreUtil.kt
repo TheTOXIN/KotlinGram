@@ -11,6 +11,7 @@ import com.toxin.kotlingram.recyclerview.item.ImageMessageItem
 import com.toxin.kotlingram.recyclerview.item.MessageItem
 import com.toxin.kotlingram.recyclerview.item.PersonItem
 import com.toxin.kotlingram.recyclerview.item.TextMessageItem
+import org.jetbrains.anko.doAsync
 
 object FirestoreUtil {
 
@@ -69,11 +70,42 @@ object FirestoreUtil {
 
                     val items = mutableListOf<PersonItem>()
                     querySnapshot!!.documents.forEach {
-                        if (it.id != FirebaseAuth.getInstance().currentUser?.uid)
-                            items.add(PersonItem(it.toObject(User::class.java)!!, it.id, context))
+                        getNonReadCount(it.id) { count ->
+                            if (it.id != FirebaseAuth.getInstance().currentUser?.uid)
+                                items.add(PersonItem(
+                                        it.toObject(User::class.java)!!,
+                                        it.id,
+                                        count,
+                                        context
+                                ))
+                            onListen(items)
+                        }
                     }
-                    onListen(items)
                 }
+    }
+
+    private fun getNonReadCount(
+            userId: String,
+            onComplete: (count: Int) -> Unit
+    ) {
+        getOrCreateChatChannel(userId) { channelId ->
+            chatChannelCollectionRef
+                    .document(channelId)
+                    .collection("messages")
+                    .addSnapshotListener { querySnapshot, firebaseFirestoreException ->
+                        if (firebaseFirestoreException != null) {
+                            Log.e("FIRESTORE", "Count not read error.", firebaseFirestoreException)
+                            return@addSnapshotListener
+                        }
+
+                        var count = 0
+                        querySnapshot!!.documents.forEach {
+                            if (it["read"] == false) count++
+                        }
+
+                        onComplete(count)
+                    }
+        }
     }
 
     fun removeListener(registration: ListenerRegistration) = registration.remove()
@@ -123,7 +155,7 @@ object FirestoreUtil {
 
                     val items = mutableListOf<MessageItem>()
                     querySnapshot!!.documents.forEach {
-                        if(it["senderId"] != FirebaseAuth.getInstance().currentUser?.uid)
+                        if (it["senderId"] != FirebaseAuth.getInstance().currentUser?.uid)
                             readMessage(it.id, channelId)
 
                         if (it["type"] == MessageType.TEXT)
