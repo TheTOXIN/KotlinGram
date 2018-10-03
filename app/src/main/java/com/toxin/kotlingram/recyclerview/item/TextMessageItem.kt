@@ -6,7 +6,6 @@ import com.toxin.kotlingram.model.TextMessage
 import com.xwray.groupie.kotlinandroidextensions.ViewHolder
 import kotlinx.android.synthetic.main.item_text_message.*
 
-
 class TextMessageItem(
         val message: TextMessage,
         val context: Context

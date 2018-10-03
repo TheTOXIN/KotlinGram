@@ -11,7 +11,6 @@ import com.toxin.kotlingram.recyclerview.item.ImageMessageItem
 import com.toxin.kotlingram.recyclerview.item.MessageItem
 import com.toxin.kotlingram.recyclerview.item.PersonItem
 import com.toxin.kotlingram.recyclerview.item.TextMessageItem
-import org.jetbrains.anko.doAsync
 
 object FirestoreUtil {
 

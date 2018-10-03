@@ -6,4 +6,6 @@
     <color name="colorWhite">#FFFFFF</color>
     <color name="colorGray">#606060</color>
     <color name="colorLightGray">#b6b6b6</color>
+    <color name="colorCheck">#11a935</color>
+    <color name="colorWair">#e43434</color>
 </resources>

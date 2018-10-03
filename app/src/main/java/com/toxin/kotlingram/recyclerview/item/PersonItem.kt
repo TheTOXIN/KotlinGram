@@ -2,6 +2,7 @@ package com.toxin.kotlingram.recyclerview.item
 
 import android.content.Context
 import android.graphics.Color
+import android.view.View
 import com.google.firebase.auth.FirebaseAuth
 import com.toxin.kotlingram.R
 import com.toxin.kotlingram.glide.GlideApp
@@ -25,8 +26,10 @@ class PersonItem(
         val countNotRead = person.counter.getOrDefault(FirebaseAuth.getInstance().currentUser?.uid!!, 0)
         viewHolder.textView_read.text = countNotRead.toString()
 
-        if (countNotRead == 0)
+        if (countNotRead == 0) {
             viewHolder.textView_read_img.setColorFilter(Color.argb(255, 96, 96, 96))
+            viewHolder.textView_read.visibility = View.INVISIBLE
+        }
 
         if (person.profilePicturePath != null)
             GlideApp.with(context)
