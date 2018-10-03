@@ -100,7 +100,8 @@ object FirestoreUtil {
 
                         var count = 0
                         querySnapshot!!.documents.forEach {
-                            if (it["read"] == false) count++
+                            if (it["read"] == false && it["senderId"] != FirebaseAuth.getInstance().currentUser?.uid)
+                                count++
                         }
 
                         onComplete(count)
